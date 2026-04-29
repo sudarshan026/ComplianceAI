@@ -1,0 +1,28 @@
+# ─── Core ───
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-dotenv>=1.0.1
+pydantic>=2.9.0
+
+# ─── Database ───
+sqlalchemy>=2.0.35
+
+# ─── Authentication ───
+passlib[bcrypt]>=1.7.4
+PyJWT>=2.9.0
+python-multipart>=0.0.12
+
+# ─── AI / NLP ───
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-core>=0.3.0
+sentence-transformers>=3.1.0
+faiss-cpu>=1.7.0
+groq>=0.11.0
+
+# ─── Document Processing ───
+PyPDF2>=3.0.1
+python-docx>=1.1.2
+
+# ─── Utilities ───
+numpy>=2.0.0
