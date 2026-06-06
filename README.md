@@ -1,151 +1,121 @@
-# ComplianceAI — Enterprise AI Compliance & Policy Assistant
+# ComplianceAI
 
-An AI-powered enterprise assistant that lets organizations upload policy documents, compliance manuals, HR rules, contracts, and audit reports, then interact with them using a conversational AI chatbot powered by RAG (Retrieval-Augmented Generation).
+**Intelligent document compliance and policy management powered by Retrieval-Augmented Generation.**
 
-## 🚀 Tech Stack
+ComplianceAI enables organizations to centralize policy documents, compliance manuals, contracts, and audit reports into a searchable knowledge base — then query them instantly through a conversational AI interface. Purpose-built for compliance teams, legal departments, and regulated enterprises.
 
-### Frontend
-- **React 19** + **Vite** + **TypeScript**
-- **Tailwind CSS** with custom design system
-- **Framer Motion** for animations
-- **Recharts** for analytics visualizations
-- **React Router** for navigation
-- **Axios** for API communication
+---
 
-### Backend
-- **Python 3.11** + **FastAPI**
-- **LangChain** for text processing
-- **Sentence Transformers** (HuggingFace) for embeddings
-- **FAISS** for vector storage & retrieval
-- **Groq API** for LLM-powered responses
-- **SQLAlchemy** + **SQLite** for database
-- **JWT** for authentication
+## Overview
 
-## 📁 Project Structure
+Managing compliance across large document repositories is operationally expensive and error-prone. ComplianceAI automates this by combining document ingestion, semantic search, and LLM-powered question answering into a single platform.
+
+**Core Capabilities:**
+
+- **Document Intelligence** — Upload PDF, DOCX, and TXT files. Documents are automatically extracted, chunked, and embedded into a vector index for instant retrieval.
+- **Conversational Compliance Assistant** — Ask natural-language questions about your policies and receive grounded answers with source citations.
+- **Semantic Search** — Find relevant clauses, sections, and provisions across your entire document corpus using vector similarity.
+- **Analytics Dashboard** — Track document usage, query patterns, and system activity at a glance.
+- **Role-Based Access Control** — Separate admin and user roles with JWT-based authentication.
+
+---
+
+## Architecture
 
 ```
-compliance/
-├── frontend/                  # React + Vite application
-│   ├── src/
-│   │   ├── components/        # Layout, UI components
-│   │   ├── context/           # Auth & Theme contexts
-│   │   ├── lib/               # API client, utilities
-│   │   └── pages/             # Route pages
-│   └── ...
-├── backend/                   # Python FastAPI application
-│   ├── app/
-│   │   ├── ai_pipeline/       # Text extraction, chunking, embeddings, RAG
-│   │   ├── auth/              # JWT authentication
-│   │   ├── database/          # SQLAlchemy models
-│   │   └── routes/            # API endpoints
-│   └── ...
-├── docker-compose.yml
-└── README.md
+┌─────────────────────────────────────────────────────┐
+│                   Frontend (React)                  │
+│         Vite · TypeScript · Tailwind CSS            │
+└──────────────────────┬──────────────────────────────┘
+                       │ REST API
+┌──────────────────────▼──────────────────────────────┐
+│                  Backend (FastAPI)                   │
+│                                                     │
+│  ┌─────────────┐  ┌────────────┐  ┌──────────────┐ │
+│  │ Auth (JWT)   │  │ Document   │  │ RAG Pipeline │ │
+│  │              │  │ Management │  │              │ │
+│  └─────────────┘  └────────────┘  └──────┬───────┘ │
+│                                          │         │
+│  ┌─────────────┐  ┌────────────┐  ┌──────▼───────┐ │
+│  │ SQLite (DB)  │  │ FAISS      │  │ Groq LLM    │ │
+│  │              │  │ (Vectors)  │  │ (Inference)  │ │
+│  └─────────────┘  └────────────┘  └──────────────┘ │
+└─────────────────────────────────────────────────────┘
 ```
 
-## ⚡ Quick Start
+**AI Pipeline:**
+
+1. **Extract** — Text is parsed from uploaded PDF, DOCX, and TXT documents.
+2. **Chunk** — Documents are split into 500-token segments with overlap for context preservation.
+3. **Embed** — Chunks are encoded into dense vectors using `all-MiniLM-L6-v2` (Sentence Transformers).
+4. **Index** — Vectors are stored in a FAISS index for sub-millisecond retrieval.
+5. **Retrieve & Generate** — User queries are embedded, matched against the index, and the top-k results are passed to a Groq-hosted LLM to generate grounded, cited answers.
+
+---
+
+## Tech Stack
+
+| Layer     | Technology                                                         |
+|-----------|--------------------------------------------------------------------|
+| Frontend  | React 19, Vite, TypeScript, Tailwind CSS, Framer Motion, Recharts |
+| Backend   | Python 3.11+, FastAPI, LangChain, SQLAlchemy                      |
+| AI/ML     | Sentence Transformers, FAISS, Groq API (Llama 3.1)                |
+| Auth      | JWT with bcrypt password hashing                                   |
+| Database  | SQLite (default), configurable via `DATABASE_URL`                  |
+
+---
+
+## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - Python 3.11+
-- Groq API key (get one free at https://console.groq.com)
+- [Groq API key](https://console.groq.com)
 
-### 1. Backend Setup
+### Backend
 
 ```bash
 cd backend
-
-# Create virtual environment
-python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # macOS/Linux
-
-# Install dependencies
+python -m venv venv && venv\Scripts\activate
 pip install -r requirements.txt
-
-# Configure environment
-copy .env.example .env
-# Edit .env and set your GROQ_API_KEY
-
-# Start server
+copy .env.example .env        # Set GROQ_API_KEY in .env
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 2. Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
 ```
 
-### 3. Open the App
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000/docs
+The application will be available at `http://localhost:5173`. API documentation (Swagger UI) is served at `http://localhost:8000/docs`.
 
-## 🔑 Environment Variables
+---
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GROQ_API_KEY` | Groq API key for LLM | (required) |
-| `GROQ_MODEL` | Groq model name | `llama-3.1-8b-instant` |
-| `JWT_SECRET` | JWT signing secret | (change in production) |
-| `EMBEDDING_MODEL` | HuggingFace model | `all-MiniLM-L6-v2` |
-| `DATABASE_URL` | Database connection | SQLite (local) |
+## Configuration
 
-## 📡 API Endpoints
+| Variable          | Description                          | Default                  |
+|-------------------|--------------------------------------|--------------------------|
+| `GROQ_API_KEY`    | Groq API key for LLM inference       | *required*               |
+| `GROQ_MODEL`      | Groq model identifier                | `llama-3.1-8b-instant`   |
+| `JWT_SECRET`      | Signing key for JWT tokens           | *change in production*   |
+| `EMBEDDING_MODEL` | HuggingFace embedding model name     | `all-MiniLM-L6-v2`       |
+| `DATABASE_URL`    | SQLAlchemy-compatible connection URI  | SQLite (local file)      |
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/signup` | Create account |
-| POST | `/api/auth/login` | Login |
-| GET | `/api/auth/me` | Get current user |
-| POST | `/api/documents/upload` | Upload documents |
-| GET | `/api/documents` | List documents |
-| DELETE | `/api/documents/{id}` | Delete document |
-| POST | `/api/chat/query` | Query RAG pipeline |
-| GET | `/api/chat/conversations` | List conversations |
-| POST | `/api/search` | Semantic search |
-| GET | `/api/analytics/overview` | Dashboard stats |
-| GET | `/api/admin/users` | List users (admin) |
+---
+## Security
 
-## 🐳 Docker Deployment
+- JWT-based authentication with bcrypt password hashing
+- Role-based access control (admin / user)
+- File type validation on upload
+- Input sanitization and CORS policy enforcement
+- Protected API routes with middleware guards
 
-```bash
-docker-compose up --build
-```
+---
 
-## 🌐 Vercel Deployment (Frontend)
+## License
 
-```bash
-cd frontend
-npm run build
-# Deploy dist/ to Vercel
-```
-
-Set `VITE_API_URL` environment variable in Vercel to your backend URL.
-
-## 🔒 Security Features
-- JWT authentication with bcrypt password hashing
-- Protected API routes
-- File type validation
-- Input sanitization
-- CORS configuration
-- Admin role-based access control
-
-## 🤖 AI Pipeline Flow
-1. **Upload** → Document saved to disk
-2. **Extract** → Text extracted from PDF/DOCX/TXT
-3. **Chunk** → Text split into 500-token chunks with overlap
-4. **Embed** → Chunks embedded using sentence-transformers
-5. **Index** → Vectors stored in FAISS
-6. **Query** → User question embedded and matched against index
-7. **Generate** → Relevant chunks + question sent to Groq LLM
-8. **Respond** → AI answer with source citations returned
-
-## 📄 License
 MIT
